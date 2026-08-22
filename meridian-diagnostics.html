@@ -1,1 +1,728 @@
-    
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meridian Diagnostics — Precision testing, clear answers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --teal-deep:#0E3E3B;
+    --teal:#155953;
+    --mist:#EFF6F5;
+    --powder:#D7EAE8;
+    --ink:#132420;
+    --coral:#FF6A55;
+    --coral-soft:#FFD9D2;
+    --paper:#FBFDFC;
+    --line: rgba(14,62,59,0.14);
+    --ease: cubic-bezier(.22,.9,.24,1);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--mist); color:var(--ink);
+    font-family:'Inter',sans-serif; overflow-x:hidden;
+  }
+  h1,h2,h3,.display{font-family:'Space Grotesk',sans-serif;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  a{color:inherit; text-decoration:none;}
+  ::selection{background:var(--coral-soft); color:var(--teal-deep);}
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; scroll-behavior:auto !important;}
+  }
+  :focus-visible{outline:2px solid var(--coral); outline-offset:3px;}
+
+  .wrap{max-width:1180px; margin:0 auto; padding:0 32px;}
+  @media(max-width:600px){.wrap{padding:0 20px;}}
+
+  /* ============ PULSE LINE (signature element) ============ */
+  .pulse-divider{width:100%; height:54px; overflow:hidden; position:relative;}
+  .pulse-divider svg{width:200%; height:100%; display:block; animation:pulseScroll 9s linear infinite;}
+  @keyframes pulseScroll{ from{transform:translateX(0);} to{transform:translateX(-50%);} }
+
+  /* ============ NAV ============ */
+  header{
+    position:fixed; top:0; left:0; right:0; z-index:200;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:26px 32px; transition:padding .4s var(--ease), background .4s var(--ease), backdrop-filter .4s var(--ease), box-shadow .4s var(--ease);
+  }
+  header.scrolled{
+    padding:14px 32px; background:rgba(251,253,252,0.78); backdrop-filter:blur(14px);
+    box-shadow:0 1px 0 var(--line);
+  }
+  .logo{display:flex; align-items:center; gap:10px; font-weight:700; font-size:1.2rem; color:var(--teal-deep);}
+  .logo .dot{width:9px; height:9px; border-radius:50%; background:var(--coral); box-shadow:0 0 0 4px var(--coral-soft); animation:beat 1.6s ease-in-out infinite;}
+  @keyframes beat{0%,100%{transform:scale(1);} 25%{transform:scale(1.35);} 40%{transform:scale(0.9);}}
+  nav ul{list-style:none; display:flex; gap:clamp(16px,3vw,34px);}
+  nav a{font-size:0.86rem; font-weight:500; color:var(--teal-deep); position:relative; padding-bottom:3px;}
+  nav a::after{content:''; position:absolute; left:0; bottom:0; height:1.5px; width:0; background:var(--coral); transition:width .3s;}
+  nav a:hover::after{width:100%;}
+  @media(max-width:760px){nav ul{display:none;}}
+  .nav-cta{
+    padding:10px 20px; border-radius:999px; background:var(--teal-deep); color:var(--paper);
+    font-size:0.82rem; font-weight:600; transition:transform .3s var(--ease), background .3s;
+  }
+  .nav-cta:hover{transform:translateY(-2px); background:var(--teal);}
+
+  /* ============ HERO ============ */
+  .hero{
+    position:relative; min-height:100vh; display:flex; align-items:center; justify-content:center;
+    padding:140px 24px 100px; overflow:hidden;
+    background:
+      radial-gradient(ellipse 90% 60% at 20% 0%, rgba(255,106,85,0.10), transparent 55%),
+      radial-gradient(ellipse 90% 70% at 85% 15%, rgba(21,89,83,0.14), transparent 60%),
+      linear-gradient(160deg, var(--mist) 0%, var(--powder) 100%);
+  }
+  .hero-ecg{
+    position:absolute; inset:0; opacity:0.5; z-index:0;
+  }
+  .hero-ecg svg{width:100%; height:100%;}
+  .hero-inner{position:relative; z-index:2; max-width:760px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:24px;}
+  .eyebrow{
+    display:flex; align-items:center; gap:10px; font-family:'IBM Plex Mono',monospace;
+    font-size:0.78rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--teal);
+  }
+  .eyebrow::before,.eyebrow::after{content:''; width:26px; height:1px; background:var(--teal); opacity:0.5;}
+  .hero h1{font-size:clamp(2.6rem,7vw,4.6rem); font-weight:700; line-height:1.03; color:var(--teal-deep);}
+  .hero h1 em{font-style:normal; color:var(--coral);}
+  .hero p.sub{font-size:clamp(1rem,2vw,1.15rem); color:#3E5B56; max-width:520px; line-height:1.6;}
+  .hero-ctas{display:flex; gap:14px; flex-wrap:wrap; justify-content:center; margin-top:6px;}
+
+  .btn{
+    display:inline-flex; align-items:center; gap:9px; padding:15px 28px; border-radius:999px;
+    font-weight:600; font-size:0.92rem; border:none; cursor:pointer;
+    transition:transform .35s cubic-bezier(.34,1.56,.64,1), box-shadow .35s ease, background .3s ease;
+  }
+  .btn-primary{background:var(--coral); color:#fff; box-shadow:0 12px 26px -10px rgba(255,106,85,0.55);}
+  .btn-primary:hover{transform:translateY(-3px) scale(1.03); box-shadow:0 18px 34px -10px rgba(255,106,85,0.65);}
+  .btn-primary:active{transform:translateY(0) scale(0.98);}
+  .btn-outline{background:transparent; border:1.5px solid rgba(14,62,59,0.25); color:var(--teal-deep);}
+  .btn-outline:hover{border-color:var(--teal-deep); background:rgba(14,62,59,0.06); transform:translateY(-2px);}
+
+  .scroll-cue{position:absolute; bottom:30px; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:8px; font-family:'IBM Plex Mono',monospace; font-size:0.68rem; letter-spacing:0.1em; text-transform:uppercase; color:#5C7772;}
+  .scroll-cue .line{width:1px; height:32px; background:linear-gradient(var(--coral), transparent); animation:cueMove 1.8s ease-in-out infinite;}
+  @keyframes cueMove{0%{opacity:0;} 30%{opacity:1;} 100%{opacity:0; transform:translateY(10px);}}
+
+  /* ============ SECTION SHELL ============ */
+  section{position:relative; padding:120px 0;}
+  .section-head{max-width:600px; margin:0 auto 56px;}
+  .section-head.center{text-align:center; margin-left:auto; margin-right:auto;}
+  .section-head .eyebrow{margin-bottom:14px;}
+  .section-head.center .eyebrow{justify-content:center;}
+  .section-head h2{font-size:clamp(2rem,4.2vw,2.9rem); font-weight:700; color:var(--teal-deep); line-height:1.1;}
+  .section-head p{margin-top:14px; color:#3E5B56; line-height:1.65;}
+
+  .reveal{opacity:0; transform:translateY(32px); transition:opacity .8s var(--ease), transform .8s var(--ease);}
+  .reveal.in{opacity:1; transform:translateY(0);}
+
+  /* ============ TESTS ============ */
+  .tests{background:var(--paper);}
+  .test-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:26px;}
+  .test-card{perspective:1500px; height:300px;}
+  .test-card-inner{position:relative; width:100%; height:100%; transform-style:preserve-3d; transition:transform .7s cubic-bezier(.2,.9,.25,1.05);}
+  .test-card:hover .test-card-inner{transform:rotateY(180deg);}
+  .test-face{position:absolute; inset:0; backface-visibility:hidden; border-radius:18px; padding:28px; display:flex; flex-direction:column; box-shadow:0 16px 34px -18px rgba(14,62,59,0.35);}
+  .test-front{background:linear-gradient(155deg,#FFFFFF,var(--mist)); border:1px solid var(--line); justify-content:space-between;}
+  .test-front .code{font-family:'IBM Plex Mono',monospace; font-size:0.72rem; color:var(--coral); font-weight:600;}
+  .test-front h3{font-size:1.35rem; font-weight:700; color:var(--teal-deep); margin-top:14px; line-height:1.2;}
+  .test-front .icon{width:44px; height:44px; border-radius:12px; background:var(--powder); display:flex; align-items:center; justify-content:center; color:var(--teal-deep);}
+  .test-front .hint{font-family:'IBM Plex Mono',monospace; font-size:0.72rem; color:#6B8681; margin-top:auto;}
+  .test-back{background:linear-gradient(155deg,var(--teal-deep),#0A2E2B); color:var(--paper); transform:rotateY(180deg); justify-content:space-between;}
+  .test-back h4{font-size:1rem; font-weight:600; margin-bottom:8px; color:var(--coral-soft);}
+  .test-back ul{list-style:none; font-size:0.85rem; line-height:1.65; color:rgba(251,253,252,0.85);}
+  .test-back ul li::before{content:'— '; color:var(--coral);}
+  .test-back .turnaround{font-family:'IBM Plex Mono',monospace; font-size:0.78rem; color:var(--powder); margin-top:10px;}
+  .wa-link{
+    display:inline-flex; align-items:center; gap:7px; margin-top:14px; padding:10px 16px; border-radius:999px;
+    background:var(--coral); color:#fff; font-size:0.8rem; font-weight:600; width:fit-content;
+    transition:transform .3s cubic-bezier(.34,1.56,.64,1), background .3s;
+  }
+  .wa-link:hover{transform:translateY(-2px) scale(1.03); background:#FF816E;}
+
+  /* ============ ABOUT ============ */
+  .about{background:var(--mist); overflow:hidden;}
+  .about-grid{display:grid; grid-template-columns:1fr 1fr; gap:64px; align-items:center;}
+  @media(max-width:900px){.about-grid{grid-template-columns:1fr;}}
+  .about-copy h2{font-size:clamp(2rem,4vw,2.7rem); font-weight:700; color:var(--teal-deep); margin-bottom:18px;}
+  .about-copy p{color:#3E5B56; line-height:1.75; margin-bottom:16px;}
+  .about-stats{display:flex; gap:28px; margin-top:28px; flex-wrap:wrap;}
+  .about-stats .stat b{display:block; font-family:'Space Grotesk',sans-serif; font-size:1.9rem; color:var(--coral); font-weight:700;}
+  .about-stats .stat span{font-size:0.78rem; color:#5C7772; font-family:'IBM Plex Mono',monospace;}
+  .about-visual{position:relative; height:400px; display:flex; align-items:center; justify-content:center;}
+  .scan-ring{
+    position:absolute; border-radius:50%; border:1.5px solid rgba(21,89,83,0.18);
+  }
+  .scan-ring.r1{width:340px; height:340px; animation:spin 40s linear infinite;}
+  .scan-ring.r2{width:250px; height:250px; border-style:dashed; animation:spin 30s linear infinite reverse;}
+  .scan-ring.r3{width:170px; height:170px; animation:spin 22s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .scan-core{
+    width:110px; height:110px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #fff, var(--powder) 70%);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 20px 40px -14px rgba(14,62,59,0.35);
+    animation:corePulse 2.4s ease-in-out infinite;
+  }
+  @keyframes corePulse{0%,100%{transform:scale(1);} 50%{transform:scale(1.06);}}
+  .scan-core svg{width:46px; height:46px; color:var(--coral);}
+
+  /* ============ TESTIMONIALS ============ */
+  .testi{background:var(--teal-deep); color:var(--paper); overflow:hidden;}
+  .testi .section-head h2{color:var(--paper);}
+  .testi .section-head p{color:rgba(251,253,252,0.7);}
+  .testi .eyebrow{color:var(--coral-soft);}
+  .testi .eyebrow::before,.testi .eyebrow::after{background:var(--coral-soft);}
+  .testi-track{
+    display:flex; gap:22px; overflow-x:auto; scroll-behavior:auto;
+    -webkit-overflow-scrolling:touch; scrollbar-width:none; padding-bottom:4px;
+    cursor:grab;
+  }
+  .testi-track::-webkit-scrollbar{display:none;}
+  .testi-track:active{cursor:grabbing;}
+  .testi-card{
+    flex:0 0 320px; background:rgba(251,253,252,0.06); border:1px solid rgba(251,253,252,0.12);
+    border-radius:18px; padding:26px; backdrop-filter:blur(6px);
+  }
+  .testi-card .stars{color:var(--coral-soft); font-size:0.9rem; margin-bottom:12px; letter-spacing:2px;}
+  .testi-card p{font-size:0.92rem; line-height:1.65; color:rgba(251,253,252,0.88); margin-bottom:16px;}
+  .testi-card .who{font-family:'IBM Plex Mono',monospace; font-size:0.76rem; color:var(--coral-soft);}
+
+  /* ============ BOOKING / CONTACT ============ */
+  .book{background:var(--paper);}
+  .book-grid{display:grid; grid-template-columns:1.05fr 0.95fr; gap:56px; align-items:start;}
+  @media(max-width:900px){.book-grid{grid-template-columns:1fr;}}
+  .form-card{
+    background:var(--mist); border:1px solid var(--line); border-radius:22px; padding:36px;
+    display:flex; flex-direction:column; gap:22px; position:relative; overflow:hidden;
+  }
+  .field{position:relative;}
+  .field input, .field select{
+    width:100%; padding:14px 4px 8px; background:transparent; border:none; border-bottom:1.5px solid var(--line);
+    font-family:'Inter',sans-serif; font-size:0.98rem; color:var(--ink); outline:none; transition:border-color .3s;
+  }
+  .field label{
+    position:absolute; left:4px; top:14px; font-size:0.98rem; color:#6B8681; pointer-events:none;
+    transition:all .25s var(--ease);
+  }
+  .field input:focus, .field input:not(:placeholder-shown), .field select:focus, .field select:not([value=""]):valid{
+    border-color:var(--coral);
+  }
+  .field input:focus ~ label, .field input:not(:placeholder-shown) ~ label,
+  .field select:focus ~ label, .field.filled label{
+    top:-6px; font-size:0.72rem; color:var(--coral); font-family:'IBM Plex Mono',monospace;
+  }
+  .submit-btn{
+    padding:15px 28px; border-radius:999px; background:var(--teal-deep); color:var(--paper); border:none;
+    font-weight:600; font-size:0.95rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;
+    transition:transform .3s cubic-bezier(.34,1.56,.64,1), background .3s;
+  }
+  .submit-btn:hover{transform:translateY(-2px); background:var(--teal);}
+  .success-check{
+    position:absolute; inset:0; background:var(--teal-deep); color:var(--paper);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px;
+    opacity:0; pointer-events:none; transition:opacity .4s var(--ease); border-radius:22px;
+  }
+  .success-check.show{opacity:1; pointer-events:all;}
+  .check-circle{
+    width:64px; height:64px; border-radius:50%; border:2.5px solid var(--coral); display:flex; align-items:center; justify-content:center;
+    animation:popIn .5s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes popIn{0%{transform:scale(0);} 100%{transform:scale(1);}}
+  .confetti{position:absolute; width:8px; height:8px; opacity:0;}
+  .success-check.show .confetti{animation:confettiPop 1.1s ease-out forwards;}
+  @keyframes confettiPop{
+    0%{opacity:1; transform:translate(0,0) rotate(0deg);}
+    100%{opacity:0; transform:translate(var(--dx), var(--dy)) rotate(var(--rot));}
+  }
+
+  .contact-info h2{font-size:clamp(1.9rem,3.6vw,2.4rem); font-weight:700; color:var(--teal-deep); margin-bottom:22px;}
+  .info-row{display:flex; gap:14px; margin-bottom:22px; align-items:flex-start;}
+  .info-row .ic{width:22px; height:22px; flex:0 0 auto; margin-top:3px; color:var(--coral);}
+  .info-row h4{font-size:0.85rem; color:var(--teal-deep); font-weight:600; margin-bottom:2px;}
+  .info-row p{font-size:0.92rem; color:#3E5B56; line-height:1.55;}
+  .call-btn{margin-top:8px; margin-bottom:24px;}
+  .socials{display:flex; gap:12px; margin-top:8px;}
+  .social-btn{
+    width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    border:1px solid var(--line); color:var(--teal-deep);
+    transition:transform .35s cubic-bezier(.34,1.56,.64,1), background .3s, color .3s;
+  }
+  .social-btn:hover{background:var(--coral); border-color:var(--coral); color:#fff; transform:translateY(-4px) rotate(-6deg);}
+  .social-btn svg{width:18px; height:18px;}
+
+  /* ============ MAP ============ */
+  .map-section{background:var(--mist); padding-top:0;}
+  .map-frame{
+    border-radius:22px; overflow:hidden; box-shadow:0 20px 44px -20px rgba(14,62,59,0.3); border:1px solid var(--line);
+    opacity:0; transform:scale(0.96); transition:opacity .8s var(--ease), transform .8s var(--ease);
+  }
+  .map-frame.in{opacity:1; transform:scale(1);}
+  .map-frame iframe{width:100%; height:380px; border:0; display:block;}
+
+  /* ============ FOOTER ============ */
+  footer{background:var(--teal-deep); color:rgba(251,253,252,0.75); padding:56px 0 40px;}
+  .footer-grid{display:flex; justify-content:space-between; flex-wrap:wrap; gap:28px; margin-bottom:30px;}
+  .footer-logo{display:flex; align-items:center; gap:10px; font-weight:700; font-size:1.15rem; color:var(--paper);}
+  .footer-nav{display:flex; gap:22px; flex-wrap:wrap;}
+  .footer-nav a{font-size:0.85rem; color:rgba(251,253,252,0.7);}
+  .footer-nav a:hover{color:var(--coral-soft);}
+  .footer-meta{font-size:0.8rem; line-height:1.7; color:rgba(251,253,252,0.55);}
+  .footer-bottom{
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; padding-top:22px;
+    border-top:1px solid rgba(251,253,252,0.12); font-family:'IBM Plex Mono',monospace; font-size:0.72rem; color:rgba(251,253,252,0.45);
+  }
+</style>
+</head>
+<body>
+
+<header id="siteHeader">
+  <div class="logo"><span class="dot"></span>Meridian Diagnostics</div>
+  <nav>
+    <ul>
+      <li><a href="#home">Home</a></li>
+      <li><a href="#tests">Tests</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#testimonials">Reports</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+  <a href="#contact" class="nav-cta">Book a Test</a>
+</header>
+
+<section class="hero" id="home">
+  <div class="hero-ecg">
+    <svg viewBox="0 0 1200 500" preserveAspectRatio="none">
+      <path id="heroEcgPath" fill="none" stroke="#155953" stroke-width="2" stroke-opacity="0.35"
+        d="M0,260 L140,260 L165,180 L190,340 L215,260 L340,260 L365,220 L390,300 L415,260 L560,260 L585,120 L610,400 L635,260 L800,260 L825,200 L850,320 L875,260 L1050,260 L1075,180 L1100,340 L1125,260 L1200,260"
+        stroke-dasharray="2000" stroke-dashoffset="2000">
+        <animate attributeName="stroke-dashoffset" from="2000" to="0" dur="3.5s" fill="freeze" />
+      </path>
+    </svg>
+  </div>
+  <div class="hero-inner">
+    <div class="eyebrow">NABL-accredited · Same-day reports</div>
+    <h1>Precision testing,<br><em>clear</em> answers.</h1>
+    <p class="sub">Meridian Diagnostics runs your blood work, scans, and full-body checkups on calibrated equipment, read by qualified pathologists — with reports you can actually understand.</p>
+    <div class="hero-ctas">
+      <a href="#contact" class="btn btn-primary">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 3.5A11.8 11.8 0 0 0 12 0a12 12 0 0 0-10.4 18l-1.6 6 6.2-1.6A12 12 0 0 0 24 12a11.8 11.8 0 0 0-3.5-8.5ZM12 21.8a9.8 9.8 0 0 1-5-1.4l-.4-.2-3.7 1 1-3.6-.2-.4A9.9 9.9 0 1 1 12 21.8Zm5.4-7.4c-.3-.1-1.7-.9-2-1s-.5-.1-.7.1-.8 1-1 1.2-.4.2-.7.1a8 8 0 0 1-2.4-1.5 9 9 0 0 1-1.6-2c-.2-.3 0-.5.1-.6l.4-.5.3-.4c0-.2 0-.3-.1-.5s-.7-1.7-1-2.3-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4a3.5 3.5 0 0 0-1.1 2.6c0 1.5 1.1 3 1.3 3.2s2.2 3.4 5.3 4.7c.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.7-.7 2-1.4s.3-1.2.2-1.4-.3-.2-.6-.4Z"/></svg>
+        Book via WhatsApp
+      </a>
+      <a href="#tests" class="btn btn-outline">View All Tests</a>
+    </div>
+  </div>
+  <div class="scroll-cue">Scroll<div class="line"></div></div>
+</section>
+
+<div class="pulse-divider">
+  <svg viewBox="0 0 600 54" preserveAspectRatio="none">
+    <path fill="none" stroke="#FF6A55" stroke-width="2" opacity="0.55"
+      d="M0,27 L70,27 L82,10 L94,44 L106,27 L200,27 L212,17 L224,37 L236,27 L300,27 L312,27 L324,10 L336,44 L348,27 L440,27 L452,17 L464,37 L476,27 L600,27
+         M600,27 L670,27 L682,10 L694,44 L706,27 L800,27 L812,17 L824,37 L836,27 L900,27 L912,27 L924,10 L936,44 L948,27 L1040,27 L1052,17 L1064,37 L1076,27 L1200,27"/>
+  </svg>
+</div>
+
+<section class="tests" id="tests">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">Tests &amp; Packages</div>
+      <h2>Hover to see what's included</h2>
+      <p>Every result is verified before it reaches you. No add-ons at checkout, no hidden steps — just book, visit, and get your report.</p>
+    </div>
+
+    <div class="test-grid">
+
+      <div class="test-card reveal">
+        <div class="test-card-inner">
+          <div class="test-face test-front">
+            <div class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v6M12 22v-6M4.9 4.9l4.2 4.2M14.9 14.9l4.2 4.2M2 12h6M22 12h-6M4.9 19.1l4.2-4.2M14.9 9.1l4.2-4.2"/></svg></div>
+            <div class="code">RPT-001</div>
+            <h3>Full Body Checkup</h3>
+            <div class="hint">Hover for details</div>
+          </div>
+          <div class="test-face test-back">
+            <div>
+              <h4>Includes</h4>
+              <ul><li>70+ blood parameters</li><li>Liver &amp; kidney panel</li><li>Thyroid &amp; sugar profile</li></ul>
+              <div class="turnaround">⏱ Reports in 24 hrs</div>
+            </div>
+            <a class="wa-link" href="https://wa.me/13055550187?text=Hi%2C%20I%27d%20like%20to%20book%20a%20Full%20Body%20Checkup%20(RPT-001).">Book via WhatsApp</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="test-card reveal">
+        <div class="test-card-inner">
+          <div class="test-face test-front">
+            <div class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a9 9 0 1 0 9 9M12 2v9l6 6"/></svg></div>
+            <div class="code">RPT-002</div>
+            <h3>Complete Blood Panel</h3>
+            <div class="hint">Hover for details</div>
+          </div>
+          <div class="test-face test-back">
+            <div>
+              <h4>Includes</h4>
+              <ul><li>CBC &amp; ESR</li><li>Hemoglobin &amp; platelets</li><li>Iron studies</li></ul>
+              <div class="turnaround">⏱ Reports in 6 hrs</div>
+            </div>
+            <a class="wa-link" href="https://wa.me/13055550187?text=Hi%2C%20I%27d%20like%20to%20book%20a%20Complete%20Blood%20Panel%20(RPT-002).">Book via WhatsApp</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="test-card reveal">
+        <div class="test-card-inner">
+          <div class="test-face test-front">
+            <div class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h10M7 16h6"/></svg></div>
+            <div class="code">RPT-003</div>
+            <h3>Digital X-Ray</h3>
+            <div class="hint">Hover for details</div>
+          </div>
+          <div class="test-face test-back">
+            <div>
+              <h4>Includes</h4>
+              <ul><li>High-resolution digital imaging</li><li>Radiologist-verified report</li><li>Soft copy on WhatsApp/email</li></ul>
+              <div class="turnaround">⏱ Reports in 3 hrs</div>
+            </div>
+            <a class="wa-link" href="https://wa.me/13055550187?text=Hi%2C%20I%27d%20like%20to%20book%20a%20Digital%20X-Ray%20(RPT-003).">Book via WhatsApp</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="test-card reveal">
+        <div class="test-card-inner">
+          <div class="test-face test-front">
+            <div class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+            <div class="code">RPT-004</div>
+            <h3>MRI / CT Scan</h3>
+            <div class="hint">Hover for details</div>
+          </div>
+          <div class="test-face test-back">
+            <div>
+              <h4>Includes</h4>
+              <ul><li>3T MRI / 128-slice CT</li><li>Contrast &amp; non-contrast options</li><li>Specialist review included</li></ul>
+              <div class="turnaround">⏱ Reports in 24 hrs</div>
+            </div>
+            <a class="wa-link" href="https://wa.me/13055550187?text=Hi%2C%20I%27d%20like%20to%20book%20an%20MRI%2FCT%20Scan%20(RPT-004).">Book via WhatsApp</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="test-card reveal">
+        <div class="test-card-inner">
+          <div class="test-face test-front">
+            <div class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l2-8 4 16 2-8h6"/></svg></div>
+            <div class="code">RPT-005</div>
+            <h3>ECG</h3>
+            <div class="hint">Hover for details</div>
+          </div>
+          <div class="test-face test-back">
+            <div>
+              <h4>Includes</h4>
+              <ul><li>12-lead resting ECG</li><li>Cardiologist interpretation</li><li>Printed &amp; digital copy</li></ul>
+              <div class="turnaround">⏱ Reports in 1 hr</div>
+            </div>
+            <a class="wa-link" href="https://wa.me/13055550187?text=Hi%2C%20I%27d%20like%20to%20book%20an%20ECG%20(RPT-005).">Book via WhatsApp</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="test-card reveal">
+        <div class="test-card-inner">
+          <div class="test-face test-front">
+            <div class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12Z"/><circle cx="12" cy="9" r="2.5"/></svg></div>
+            <div class="code">RPT-006</div>
+            <h3>Diabetes Profile</h3>
+            <div class="hint">Hover for details</div>
+          </div>
+          <div class="test-face test-back">
+            <div>
+              <h4>Includes</h4>
+              <ul><li>Fasting &amp; PP sugar</li><li>HbA1c</li><li>Kidney function markers</li></ul>
+              <div class="turnaround">⏱ Reports in 6 hrs</div>
+            </div>
+            <a class="wa-link" href="https://wa.me/13055550187?text=Hi%2C%20I%27d%20like%20to%20book%20a%20Diabetes%20Profile%20(RPT-006).">Book via WhatsApp</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="about" id="about">
+  <div class="wrap about-grid">
+    <div class="about-copy reveal">
+      <div class="eyebrow">About Meridian</div>
+      <h2>Calibrated equipment. Qualified eyes on every result.</h2>
+      <p>Meridian Diagnostics is a NABL-accredited centre built around one idea: a report is only useful if it's accurate and easy to read. Every sample is processed on calibrated instruments and reviewed by our in-house pathologists before it reaches you.</p>
+      <p>Our team includes certified lab technicians, radiologists, and a cardiologist on call — so results come with context, not just numbers.</p>
+      <div class="about-stats">
+        <div class="stat"><b>12+</b><span>YEARS RUNNING</span></div>
+        <div class="stat"><b>40K+</b><span>TESTS PROCESSED</span></div>
+        <div class="stat"><b>99.2%</b><span>REPORT ACCURACY</span></div>
+      </div>
+    </div>
+    <div class="about-visual reveal">
+      <div class="scan-ring r1"></div>
+      <div class="scan-ring r2"></div>
+      <div class="scan-ring r3"></div>
+      <div class="scan-core">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l2-8 4 16 2-8h6"/></svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="testi" id="testimonials">
+  <div class="wrap">
+    <div class="section-head center reveal">
+      <div class="eyebrow">Patient Reports</div>
+      <h2>What people say after their visit</h2>
+    </div>
+  </div>
+  <div class="testi-track" id="testiTrack">
+    <div class="testi-card"><div class="stars">★★★★★</div><p>Got my full body checkup done and the report came the very next morning. The staff explained every number instead of just handing over a printout.</p><div class="who">— Rahim S.</div></div>
+    <div class="testi-card"><div class="stars">★★★★★</div><p>Booked my mother's ECG through WhatsApp in two minutes. No waiting in line, no confusion about pricing — just clear communication.</p><div class="who">— Fatima K.</div></div>
+    <div class="testi-card"><div class="stars">★★★★☆</div><p>The MRI scan was quick and the technician was patient with my dad who gets anxious in machines. Report was ready same day.</p><div class="who">— Imran A.</div></div>
+    <div class="testi-card"><div class="stars">★★★★★</div><p>I've used three other labs in the city — Meridian is the only one where the numbers actually matched a re-test I did elsewhere.</p><div class="who">— Zainab M.</div></div>
+    <div class="testi-card"><div class="stars">★★★★★</div><p>Clean facility, on-time appointment, and the blood panel results came with a simple explanation sheet. Genuinely useful.</p><div class="who">— Yusuf T.</div></div>
+    <div class="testi-card"><div class="stars">★★★★★</div><p>Got my full body checkup done and the report came the very next morning. The staff explained every number instead of just handing over a printout.</p><div class="who">— Rahim S.</div></div>
+    <div class="testi-card"><div class="stars">★★★★★</div><p>Booked my mother's ECG through WhatsApp in two minutes. No waiting in line, no confusion about pricing — just clear communication.</p><div class="who">— Fatima K.</div></div>
+    <div class="testi-card"><div class="stars">★★★★☆</div><p>The MRI scan was quick and the technician was patient with my dad who gets anxious in machines. Report was ready same day.</p><div class="who">— Imran A.</div></div>
+  </div>
+</section>
+
+<section class="book" id="contact">
+  <div class="wrap book-grid">
+    <div class="reveal">
+      <form class="form-card" id="bookingForm" onsubmit="handleBooking(event)">
+        <div class="field">
+          <input type="text" id="bk-name" required placeholder=" ">
+          <label>Full name</label>
+        </div>
+        <div class="field">
+          <input type="tel" id="bk-phone" required placeholder=" ">
+          <label>Phone number</label>
+        </div>
+        <div class="field field-select filled">
+          <select id="bk-test" required>
+            <option value="" disabled selected hidden></option>
+            <option value="Full Body Checkup">Full Body Checkup</option>
+            <option value="Complete Blood Panel">Complete Blood Panel</option>
+            <option value="Digital X-Ray">Digital X-Ray</option>
+            <option value="MRI / CT Scan">MRI / CT Scan</option>
+            <option value="ECG">ECG</option>
+            <option value="Diabetes Profile">Diabetes Profile</option>
+            <option value="Other">Other (mention on WhatsApp)</option>
+          </select>
+          <label>Test required</label>
+        </div>
+        <div class="field">
+          <input type="date" id="bk-date" required placeholder=" " style="color:var(--ink);">
+          <label>Preferred date</label>
+        </div>
+        <button class="submit-btn" type="submit">
+          Book via WhatsApp
+        </button>
+
+        <div class="success-check" id="successCheck">
+          <div class="check-circle">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FF6A55" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <div style="font-weight:600;">Booking request ready</div>
+          <div style="font-size:0.82rem; color:rgba(251,253,252,0.65); text-align:center; max-width:220px;">Opening WhatsApp to confirm your appointment…</div>
+        </div>
+      </form>
+    </div>
+
+    <div class="contact-info reveal">
+      <div class="eyebrow">Get in touch</div>
+      <h2>We'll confirm within minutes.</h2>
+
+      <div class="info-row">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12Z"/><circle cx="12" cy="9" r="2.5"/></svg>
+        <div><h4>Centre address</h4><p>Meridian Diagnostics, 780 Brickell Plaza, Miami, FL 33131</p></div>
+      </div>
+      <div class="info-row">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .3 2 .6 2.9a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.9.3 1.9.5 2.9.6a2 2 0 0 1 1.8 2Z"/></svg>
+        <div><h4>Phone</h4><p>+1 (305) 555-0187</p></div>
+      </div>
+      <div class="info-row">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 6 10 7 10-7"/></svg>
+        <div><h4>Email</h4><p>care@meridiandiagnostics.in</p></div>
+      </div>
+
+      <a class="btn btn-outline call-btn" href="tel:+13055550187">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .3 2 .6 2.9a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.9.3 1.9.5 2.9.6a2 2 0 0 1 1.8 2Z"/></svg>
+        Call Now
+      </a>
+
+      <div class="socials">
+        <a class="social-btn" href="#" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1"/></svg>
+        </a>
+        <a class="social-btn" href="#" aria-label="Facebook">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 8h-2a2 2 0 0 0-2 2v10M9 13h6"/><path d="M15 3H6a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h9a3 3 0 0 0 3-3V6a3 3 0 0 0-3-3z"/></svg>
+        </a>
+        <a class="social-btn" href="#" aria-label="LinkedIn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M7 10v7M7 7v.01M12 17v-4a2 2 0 0 1 4 0v4M12 13v4"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="map-section">
+  <div class="wrap">
+    <div class="map-frame reveal" id="mapFrame">
+      <iframe
+        src="https://www.google.com/maps?q=780+Brickell+Plaza+Miami+FL+33131&output=embed"
+        loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen>
+      </iframe>
+    </div>
+  </div>
+</section>
+
+<div class="pulse-divider">
+  <svg viewBox="0 0 600 54" preserveAspectRatio="none">
+    <path fill="none" stroke="#FF6A55" stroke-width="2" opacity="0.55"
+      d="M0,27 L70,27 L82,10 L94,44 L106,27 L200,27 L212,17 L224,37 L236,27 L300,27 L312,27 L324,10 L336,44 L348,27 L440,27 L452,17 L464,37 L476,27 L600,27
+         M600,27 L670,27 L682,10 L694,44 L706,27 L800,27 L812,17 L824,37 L836,27 L900,27 L912,27 L924,10 L936,44 L948,27 L1040,27 L1052,17 L1064,37 L1076,27 L1200,27"/>
+  </svg>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo"><span class="dot" style="width:8px;height:8px;border-radius:50%;background:#FF6A55;display:inline-block;"></span>Meridian Diagnostics</div>
+        <p class="footer-meta" style="margin-top:12px; max-width:260px;">780 Brickell Plaza<br>Miami, FL 33131<br>+1 (305) 555-0187</p>
+      </div>
+      <div class="footer-nav">
+        <a href="#home">Home</a>
+        <a href="#tests">Tests</a>
+        <a href="#about">About</a>
+        <a href="#testimonials">Reports</a>
+        <a href="#contact">Contact</a>
+      </div>
+      <div class="socials">
+        <a class="social-btn" href="#" aria-label="Instagram" style="border-color:rgba(251,253,252,0.2); color:#fff;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1"/></svg>
+        </a>
+        <a class="social-btn" href="#" aria-label="Facebook" style="border-color:rgba(251,253,252,0.2); color:#fff;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 8h-2a2 2 0 0 0-2 2v10M9 13h6"/><path d="M15 3H6a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h9a3 3 0 0 0 3-3V6a3 3 0 0 0-3-3z"/></svg>
+        </a>
+        <a class="social-btn" href="#" aria-label="LinkedIn" style="border-color:rgba(251,253,252,0.2); color:#fff;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M7 10v7M7 7v.01M12 17v-4a2 2 0 0 1 4 0v4M12 13v4"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Meridian Diagnostics. All rights reserved.</span>
+      <span>NABL Accredited · Reg. No. MD-2026-0142</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Sticky nav
+  const header = document.getElementById('siteHeader');
+  window.addEventListener('scroll', () => {
+    header.classList.toggle('scrolled', window.scrollY > 40);
+  }, {passive:true});
+
+  // Scroll reveal
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, {threshold:0.15});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+  // Testimonial carousel: auto-scroll + manual swipe support
+  const testiTrack = document.getElementById('testiTrack');
+  let autoScroll = true;
+  let resumeTimer = null;
+
+  function tick(){
+    if(autoScroll && testiTrack){
+      testiTrack.scrollLeft += 0.6;
+      const half = testiTrack.scrollWidth / 2;
+      if(testiTrack.scrollLeft >= half){
+        testiTrack.scrollLeft -= half;
+      }
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  function pauseAuto(){
+    autoScroll = false;
+    clearTimeout(resumeTimer);
+  }
+  function resumeAutoLater(){
+    clearTimeout(resumeTimer);
+    resumeTimer = setTimeout(()=>{ autoScroll = true; }, 2500);
+  }
+  if(testiTrack){
+    testiTrack.addEventListener('pointerdown', pauseAuto);
+    testiTrack.addEventListener('touchstart', pauseAuto, {passive:true});
+    testiTrack.addEventListener('pointerup', resumeAutoLater);
+    testiTrack.addEventListener('touchend', resumeAutoLater);
+    testiTrack.addEventListener('mouseenter', pauseAuto);
+    testiTrack.addEventListener('mouseleave', resumeAutoLater);
+  }
+
+  // Map fade/scale-in
+  const mapIo = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); mapIo.unobserve(e.target);} });
+  }, {threshold:0.2});
+  mapIo.observe(document.getElementById('mapFrame'));
+
+  // Booking form -> WhatsApp + success animation
+  function handleBooking(event){
+    event.preventDefault();
+    const name = document.getElementById('bk-name').value;
+    const phone = document.getElementById('bk-phone').value;
+    const test = document.getElementById('bk-test').value;
+    const date = document.getElementById('bk-date').value;
+
+    const rawMessage =
+      "New booking request - Meridian Diagnostics\n\n" +
+      "Name: " + name + "\n" +
+      "Phone: " + phone + "\n" +
+      "Test required: " + test + "\n" +
+      "Preferred date: " + date;
+
+    const message = encodeURIComponent(rawMessage);
+    const centreWhatsAppNumber = "13055550187";
+    const whatsappUrl = "https://wa.me/" + centreWhatsAppNumber + "?text=" + message;
+
+    // confetti
+    const form = document.getElementById('bookingForm');
+    for(let i=0;i<16;i++){
+      const c = document.createElement('div');
+      c.className='confetti';
+      const colors=['#FF6A55','#155953','#D7EAE8','#FFD9D2'];
+      c.style.background = colors[i % colors.length];
+      c.style.left = (45 + Math.random()*10) + '%';
+      c.style.top = '38%';
+      c.style.setProperty('--dx', (Math.random()*300-150)+'px');
+      c.style.setProperty('--dy', (Math.random()*-220-40)+'px');
+      c.style.setProperty('--rot', (Math.random()*360)+'deg');
+      c.style.borderRadius = Math.random()>0.5 ? '50%' : '2px';
+      form.appendChild(c);
+      setTimeout(()=>c.remove(), 1200);
+    }
+
+    document.getElementById('successCheck').classList.add('show');
+
+    setTimeout(()=>{ window.location.href = whatsappUrl; }, 900);
+  }
+</script>
+
+</body>
+</html>
